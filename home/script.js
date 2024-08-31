@@ -1,10 +1,18 @@
 const BASE_URL = "https://api.coingecko.com/api/v3/coins/markets";
+
+const mediaQueryCondition = window.matchMedia("( max-width: 768px )");
 const theadElTr = document.querySelector("thead tr");
 const searchInput = document.querySelector("#search-input");
 const previousButton = document.querySelector("#previous-page");
 const nextButton = document.querySelector("#next-page");
 const count = document.querySelector(".count");
 
+
+
+
+
+
+//  -----------  Fetch and Fill ---------------
 let page = 1;
 async function fetchPosts(page) {
     try {
@@ -64,34 +72,36 @@ async function fillTable(page) {
     });
 }
 
+
+
+
+
+
+
+
+
+
+// ---------- Sorting -------------
 let sortOrder = "desc";
-function sortTable(sortOrder, num ,string = false) {
-    const number = parseInt(num);
+function sortTable(sortOrder, order, string = false) {
+    const number = parseInt(order);
     const tbody = document.querySelector("#table-body");
     const rows = tbody.querySelectorAll("tr");
-    if (string) {
-        const sortedRows = Array.from(rows).sort((a, b) => {
-            const aCol = a.querySelectorAll("td")[number].textContent;
-            const bCol = b.querySelectorAll("td")[number].textContent;
-            if (sortOrder === "asc") {
-                return aCol > bCol ? 1 : -1;
-            } else {
-                return aCol < bCol ? 1 : -1;
-            }
-        });
-        tbody.innerHTML = "";
-        sortedRows.forEach((row) => {
-            tbody.append(row);
-        });
-        return;
-    }
+    let aCol = "";
+    let bCol = "";
     const sortedRows = Array.from(rows).sort((a, b) => {
-        const aCol = a.querySelectorAll("td")[number].textContent.replace(/[^0-9.-]+/g, "");
-        const bCol = b.querySelectorAll("td")[number].textContent.replace(/[^0-9.-]+/g, "");
+        if (!string) {
+            aCol = Number(a.querySelectorAll("td")[number].textContent.replace(/[^0-9.-]+/g, ""));
+            bCol = Number(b.querySelectorAll("td")[number].textContent.replace(/[^0-9.-]+/g, ""));
+        }
+        else{
+            aCol = a.querySelectorAll("td")[number].textContent;
+            bCol = b.querySelectorAll("td")[number].textContent;
+        }
         if (sortOrder === "asc") {
-            return  Number(aCol) > Number(bCol) ? 1 : -1;
+            return aCol > bCol ? 1 : -1;
         } else {
-            return Number(aCol) < Number(bCol) ? 1 : -1;
+            return aCol < bCol ? 1 : -1;
         }
     });
     tbody.innerHTML = "";
@@ -100,33 +110,32 @@ function sortTable(sortOrder, num ,string = false) {
     });
 }
 
-theadElTr.firstElementChild.addEventListener("click", () => {
-    sortTable(sortOrder, "0");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc";
-});
+for (let index = 0; index <= 4; index++) {
+    theadElTr.children[index].addEventListener("click", () => {
+        index === 1
+            ? sortTable(sortOrder, `${index}`, true)
+            : sortTable(sortOrder, `${index}`);
+        sortOrder = sortOrder === "asc" ? "desc" : "asc";
+    });
+}
 
-theadElTr.children[1].addEventListener("click", () => {
-    sortTable(sortOrder, "1",true);
-    sortOrder = sortOrder === "asc" ? "desc" : "asc";
-});
-theadElTr.children[2].addEventListener("click", () => {
-    sortTable(sortOrder, "2");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc";
-});
-theadElTr.children[3].addEventListener("click", () => {
-    sortTable(sortOrder, "3");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc";
-});
-theadElTr.children[4].addEventListener("click", () => {
-    sortTable(sortOrder, "4");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc";
-});
 
+
+
+
+
+
+
+
+
+
+
+//  --------- Searching ----------
 searchInput.addEventListener("keyup", (e) => {
     const searchValue = e.target.value.toLowerCase();
     const rows = document.querySelectorAll("tbody tr");
     rows.forEach((row) => {
-        const text = row.textContent.toLowerCase();
+        const text = row.children[1].textContent.toLowerCase();
         if (text.includes(searchValue)) {
             row.style.display = "";
         } else {
@@ -134,6 +143,22 @@ searchInput.addEventListener("keyup", (e) => {
         }
     });
 });
+
+
+
+
+
+
+
+
+
+
+// ------------- Prev and Next Buttons ---------------
+if (mediaQueryCondition.matches) {
+    previousButton.parentElement.style = "flex-direction:row";
+    previousButton.innerHTML = `Prev`;
+    nextButton.innerHTML = `Next`;
+}
 
 function prevCheck() {
     if (page === 1) {
@@ -162,5 +187,12 @@ nextButton.addEventListener("click", () => {
 });
 
 
+
+
+
+
+
+
+// ----------- Initialization ---------
 prevCheck();
 fillTable(page);
