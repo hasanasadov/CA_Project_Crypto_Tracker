@@ -8,7 +8,6 @@ const count = document.querySelector(".count");
 let page = 1;
 async function fetchPosts(page) {
     try {
-        //loading spinner
         document.querySelector(".loader").classList.remove("hidden");
         const response = await fetch(
             `${BASE_URL}?vs_currency=usd&order=market_cap_desc&per_page=30&page=${page}`
