@@ -1,19 +1,18 @@
-// ?vs_currency=usd&order=market_cap_desc&per_page=100&page=1
 const BASE_URL = "https://api.coingecko.com/api/v3/coins/markets";
-// const BASE_URL = "https://66d2cb18184dce1713ce6c31.mockapi.io/api/cryptos/user";
 const theadElTr = document.querySelector("thead tr");
 const searchInput = document.querySelector("#search-input");
 const previousButton = document.querySelector("#previous-page");
 const nextButton = document.querySelector("#next-page");
 const count = document.querySelector(".count");
 
-
 let page = 1;
 async function fetchPosts(page) {
     try {
         //loading spinner
         document.querySelector(".loader").classList.remove("hidden");
-        const response = await fetch(`${BASE_URL}?vs_currency=usd&order=market_cap_desc&per_page=15&page=${page}`);
+        const response = await fetch(
+            `${BASE_URL}?vs_currency=usd&order=market_cap_desc&per_page=30&page=${page}`
+        );
         document.querySelector(".loader").classList.add("hidden");
         const posts = await response.json();
         return posts;
@@ -66,19 +65,34 @@ async function fillTable(page) {
     });
 }
 
-
 let sortOrder = "desc";
-function sortTable(sortOrder,num) {
+function sortTable(sortOrder, num ,string = false) {
     const number = parseInt(num);
     const tbody = document.querySelector("#table-body");
-    const rows = tbody.querySelectorAll("tr");    
+    const rows = tbody.querySelectorAll("tr");
+    if (string) {
+        const sortedRows = Array.from(rows).sort((a, b) => {
+            const aCol = a.querySelectorAll("td")[number].textContent;
+            const bCol = b.querySelectorAll("td")[number].textContent;
+            if (sortOrder === "asc") {
+                return aCol > bCol ? 1 : -1;
+            } else {
+                return aCol < bCol ? 1 : -1;
+            }
+        });
+        tbody.innerHTML = "";
+        sortedRows.forEach((row) => {
+            tbody.append(row);
+        });
+        return;
+    }
     const sortedRows = Array.from(rows).sort((a, b) => {
-        const aCol = a.querySelectorAll("td")[number].textContent;
-        const bCol = b.querySelectorAll("td")[number].textContent;
+        const aCol = a.querySelectorAll("td")[number].textContent.replace(/[^0-9.-]+/g, "");
+        const bCol = b.querySelectorAll("td")[number].textContent.replace(/[^0-9.-]+/g, "");
         if (sortOrder === "asc") {
-            return aCol > bCol ? 1 : -1;
+            return  Number(aCol) > Number(bCol) ? 1 : -1;
         } else {
-            return aCol < bCol ? 1 : -1;
+            return Number(aCol) < Number(bCol) ? 1 : -1;
         }
     });
     tbody.innerHTML = "";
@@ -88,28 +102,26 @@ function sortTable(sortOrder,num) {
 }
 
 theadElTr.firstElementChild.addEventListener("click", () => {
-    sortTable(sortOrder,"0");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc"; 
+    sortTable(sortOrder, "0");
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
 });
 
 theadElTr.children[1].addEventListener("click", () => {
-    sortTable(sortOrder,"1");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc"; 
+    sortTable(sortOrder, "1",true);
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
 });
 theadElTr.children[2].addEventListener("click", () => {
-    sortTable(sortOrder,"2");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc"; 
+    sortTable(sortOrder, "2");
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
 });
 theadElTr.children[3].addEventListener("click", () => {
-    sortTable(sortOrder,"3");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc"; 
+    sortTable(sortOrder, "3");
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
 });
 theadElTr.children[4].addEventListener("click", () => {
-    sortTable(sortOrder,"4");
-    sortOrder = sortOrder === "asc" ? "desc" : "asc"; 
+    sortTable(sortOrder, "4");
+    sortOrder = sortOrder === "asc" ? "desc" : "asc";
 });
-
-
 
 searchInput.addEventListener("keyup", (e) => {
     const searchValue = e.target.value.toLowerCase();
@@ -124,11 +136,21 @@ searchInput.addEventListener("keyup", (e) => {
     });
 });
 
+function prevCheck() {
+    if (page === 1) {
+        previousButton.disabled = true;
+        previousButton.classList.add("disabled");
+    } else {
+        previousButton.disabled = false;
+        previousButton.classList.remove("disabled");
+    }
+}
 
 previousButton.addEventListener("click", () => {
     if (page > 1) {
         page--;
         count.textContent = `Page ${page}`;
+        prevCheck();
         fillTable(page);
     }
 });
@@ -136,7 +158,10 @@ previousButton.addEventListener("click", () => {
 nextButton.addEventListener("click", () => {
     page++;
     count.textContent = `Page ${page}`;
+    prevCheck();
     fillTable(page);
 });
 
+
+prevCheck();
 fillTable(page);
