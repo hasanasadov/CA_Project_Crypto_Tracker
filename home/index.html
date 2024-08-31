@@ -13,8 +13,9 @@
                 <h2 class="top-left">Cyrpto Tracker Application</h2>
                 <div class="top-right">
                     <input
-                        type="text"
-                        placeholder="Search by cyrpto name"
+                    id="search-input"
+                    type="text"
+                    placeholder="Search by cyrpto name"
                     /><svg
                         stroke="currentColor"
                         fill="currentColor"
@@ -33,6 +34,7 @@
             </div>
 
             <div class="table-wrapper">
+                <span class="loader"></span>
                 <table>
                     <thead>
                         <tr>
@@ -50,11 +52,11 @@
             </div>
 
             <div class="bottom">
-                <button disabled="" class="sc-kDTinF fVlUQW">
+                <button disabled="" id="previous-page">
                     🡠 Previous Page
                 </button>
-                <h3 class="sc-iqseJM dyZTVF">Page 1</h3>
-                <button class="sc-kDTinF gmYtsh">Next Page 🡢</button>
+                <h3 class="count">Page 1</h3>
+                <button id="next-page">Next Page 🡢</button>
             </div>
         </div>
         <footer>
